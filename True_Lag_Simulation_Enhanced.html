@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True Lag Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #status {
+            font-size: 18px;
+            margin-top: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simulate True Lag on Phone</h1>
+    <button onclick="simulateLag()">Simulate True Lag</button>
+    <p id="status">Click the button to simulate lag.</p>
+
+    <script>
+        function simulateLag() {
+            document.getElementById("status").innerText = "Simulating lag... Please wait.";
+            
+            // Simulate lag using Web Workers for off-screen multitasking
+            let worker = new Worker(URL.createObjectURL(new Blob([`
+                self.onmessage = function() {
+                    let endTime = Date.now() + 20000; // 20 seconds lag
+                    while (Date.now() < endTime) {
+                        let result = 0;
+                        for (let i = 0; i < 10000000; i++) {
+                            result += Math.sqrt(i);
+                        }
+                    }
+                    self.postMessage("done");
+                };
+            `], { type: "text/javascript" })));
+            
+            worker.onmessage = function() {
+                document.getElementById("status").innerText = "Lag simulation complete!";
+                worker.terminate();
+            };
+
+            worker.postMessage("start");
+        }
+    </script>
+</body>
+</html>
